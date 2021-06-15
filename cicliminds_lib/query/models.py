@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-logger = logging.getLogger("cicliminds_lib.query.models")
+logger = logging.getLogger(__name__)
 
 
 def list_model_configurations(datasets):
