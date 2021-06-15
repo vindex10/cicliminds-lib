@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from ciclimindsLib.ui import display
+from cicliminds_lib.ui import display
 
 
 def list_model_configurations(datasets):
