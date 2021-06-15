@@ -1,6 +1,10 @@
+import logging
+
 import numpy as np
 import pandas as pd
-from cicliminds_lib.ui import display
+
+
+logger = logging.getLogger("cicliminds_lib.query.models")
 
 
 def list_model_configurations(datasets):
@@ -54,5 +58,5 @@ def _get_timespan(data):
 def _check_insanity_and_clean(data, col):
     is_insane = np.any(data[col])
     if not is_insane:
-        display(f"{col}: {is_insane}")
+        logger.info("%s: %s", col, is_insane)
         del data[col]
