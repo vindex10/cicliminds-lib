@@ -1,5 +1,5 @@
 from cicliminds_lib.utils import filter_pdarray
-from cicliminds_lib.bindings.cdo import cdo_cat
+from cicliminds_lib.bindings import cdo_cat
 
 
 def get_list_of_files(datasets, config, with_scenario=None):

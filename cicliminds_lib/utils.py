@@ -7,7 +7,7 @@ import xarray as xr
 
 def filter_pdarray(pdarray, query):
     mask = np.array(True)
-    for key, val in query:
+    for key, val in query.items():
         mask = mask & (pdarray[key] == val)
     return pdarray[mask]
 

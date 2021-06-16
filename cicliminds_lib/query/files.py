@@ -8,7 +8,7 @@ def get_datasets(path):
         if not f.endswith(".nc"):
             continue
         entry = parse_dataset_name(f)
-        entry["full_path"] = os.path.join(path, f)
+        entry["path"] = os.path.join(path, f)
         res.append(entry)
     return pd.DataFrame.from_records(res).set_index("path")
 
