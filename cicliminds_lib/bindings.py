@@ -1,7 +1,7 @@
 import tempfile
 
-from cicliminds_lib.bindings.utils import run_fs_cmd
-from cicliminds_lib.bindings.utils import data_to_data
+from cicliminds_lib.utils import run_fs_cmd
+from cicliminds_lib.utils import data_to_data
 
 
 def remove_grid(fout_path, fin_path):

@@ -1,7 +1,7 @@
-from cicliminds_lib.bindings.cdo import cdo_fldpctl_from_data
-from cicliminds_lib.bindings.cdo import cdo_fldmean_from_data
-from cicliminds_lib.bindings.cdo import cdo_fldmin_from_data
-from cicliminds_lib.bindings.cdo import cdo_fldmax_from_data
+from cicliminds_lib.bindings import cdo_fldpctl_from_data
+from cicliminds_lib.bindings import cdo_fldmean_from_data
+from cicliminds_lib.bindings import cdo_fldmin_from_data
+from cicliminds_lib.bindings import cdo_fldmax_from_data
 from cicliminds_lib.stats import sigma_to_quantile
 
 

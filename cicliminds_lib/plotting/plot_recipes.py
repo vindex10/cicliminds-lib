@@ -6,8 +6,8 @@ from matplotlib import cm
 import cartopy.crs as ccrs
 import xhistogram.xarray as xh
 
-from cicliminds_lib.bindings.cdo import cdo_gridweights_from_data
-from cicliminds_lib.bindings.cdo import cdo_fldmean_from_data
+from cicliminds_lib.bindings import cdo_gridweights_from_data
+from cicliminds_lib.bindings import cdo_fldmean_from_data
 
 from cicliminds_lib.plotting.configs import MEANS_OF_HISTS_VIZ_CFG
 from cicliminds_lib.plotting.configs import HISTS_OF_MEANS_VIZ_CFG
