@@ -22,6 +22,5 @@ def parse_dataset_name(f):
              "model": model,
              "scenario": scenario,
              "init_params": init_params,
-             "timespan_from": timespan_from[:4],
-             "timespan_to": timespan_to[:4]}
+             "timespan": f'{timespan_from[:4]}-{timespan_to[:4]}'}
     return entry

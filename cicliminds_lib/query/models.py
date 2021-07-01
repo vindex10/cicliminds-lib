@@ -13,7 +13,7 @@ def list_model_configurations(datasets):
     for params, data in datasets.reset_index()\
                                 .assign(init_params_trunc=lambda x: [i[:-1] for i in x["init_params"]]) \
                                 .groupby(["model", "scenario", "frequency", "init_params_trunc"]):
-        model, scenario, frequency, init_params_trunc = params
+        model, scenario, frequency, _ = params
         all_indices = _has_all_indices(data, all_indices_count)
         init_params, init_params_non_uniform = _get_init_params(data)
         timespan, timespan_non_uniform = _get_timespan(data)
@@ -46,12 +46,9 @@ def _get_init_params(data):
 
 
 def _get_timespan(data):
-    timespan_froms = data["timespan_from"].unique().astype(np.int64)
-    timespan_tos = data["timespan_to"].unique().astype(np.int64)
-    timespan_from = np.max(timespan_froms)
-    timespan_to = np.min(timespan_tos)
-    timespan_non_uniform = np.any([(timespan_froms.shape[0] > 1), (timespan_tos.shape[0] > 1)])
-    timespan = f"{timespan_from}-{timespan_to}"
+    timespans = data["timespan"].unique()
+    timespan_non_uniform = timespans.shape[0] > 1
+    timespan = timespans[0]
     return timespan, timespan_non_uniform
 
 
