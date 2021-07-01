@@ -15,6 +15,13 @@ def load_reference_regions():
     return _rmask_with_fixed_negative_degrees(rmask_regions)
 
 
+def load_reference_regions_meta():
+    fname = "referenceRegions/referenceRegions.shp"
+    path_to_regions = os.path.join(os.path.dirname(__file__), fname)
+    gp_regions = gp.read_file(path_to_regions)
+    return gp_regions[["NAME", "LAB", "USAGE"]]
+
+
 def _rmask_with_fixed_negative_degrees(rmask_regions):
     new_outlines = []
     for region in rmask_regions:
