@@ -13,7 +13,7 @@ def filter_pdarray(pdarray, query):
 
 
 def run_fs_cmd(fout_path, cmd, fin_path):
-    if isinstance(fin_path, list):
+    if not isinstance(fin_path, str):
         fin_path = " ".join(map(str, fin_path))
     subprocess.run(f"{cmd} {fin_path} {fout_path}", shell=True)
 
