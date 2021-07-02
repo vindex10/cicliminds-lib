@@ -1,24 +1,25 @@
-import os
-
 import geopandas as gp
 import regionmask
 from regionmask.core.regions import Regions
 from shapely.geometry import Polygon
 
+try:
+    from importlib_resources import path
+except ImportError:
+    from importlib.resources import path
+
 
 def load_reference_regions():
-    fname = "referenceRegions/referenceRegions.shp"
-    path_to_regions = os.path.join(os.path.dirname(__file__), fname)
-    gp_regions = gp.read_file(path_to_regions)
+    with path("cicliminds_lib.masks", "referenceRegions.zip") as path_to_regions:
+        gp_regions = gp.read_file(f"zip://{path_to_regions}")
     rmask_regions = regionmask.from_geopandas(gp_regions, name="regions",
                                               names="NAME", abbrevs="LAB")
     return _rmask_with_fixed_negative_degrees(rmask_regions)
 
 
 def load_reference_regions_meta():
-    fname = "referenceRegions/referenceRegions.shp"
-    path_to_regions = os.path.join(os.path.dirname(__file__), fname)
-    gp_regions = gp.read_file(path_to_regions)
+    with path("cicliminds_lib.masks", "referenceRegions.zip") as path_to_regions:
+        gp_regions = gp.read_file(f"zip://{path_to_regions}")
     return gp_regions[["NAME", "LAB", "USAGE"]]
 
 
