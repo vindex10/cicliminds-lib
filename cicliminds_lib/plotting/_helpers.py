@@ -1,8 +1,5 @@
 import numpy as np
 
-from cicliminds_lib.plotting.configs import TIME_WINDOW_STEP
-from cicliminds_lib.plotting.configs import TIME_WINDOW_SIZE
-
 
 def _infer_hist_bins(vals, binsize):
     # min_val = np.min(vals)
@@ -16,11 +13,11 @@ def _infer_hist_bins(vals, binsize):
     return np.arange(left_edge, right_edge, binsize)
 
 
-def _generate_timeslices(val):
+def _generate_timeslices(val, cfg):
     size = len(val.time)
-    for start in range(0, size-TIME_WINDOW_SIZE, TIME_WINDOW_STEP):
+    for start in range(0, size-cfg.sliding_window_size, cfg.slide_step):
         intensity = start/size
-        yield intensity, slice(start, start+TIME_WINDOW_SIZE)
+        yield intensity, slice(start, start+cfg.sliding_window_size)
 
 
 def _configure_axes(ax, cfg, title):

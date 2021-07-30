@@ -1,14 +1,18 @@
 from collections import namedtuple
+from dataclasses import dataclass
+from typing import Optional
+
 import numpy as np
 
 
-TIME_WINDOW_SIZE = 50
-TIME_WINDOW_STEP = 30
+DEFAULT_REFERENCE_WINDOW_SIZE = 50
+DEFAULT_SLIDING_WINDOW_SIZE = 30
+DEFAULT_SLIDE_STEP = 30
 COLORMAP = "gist_rainbow"
 
 _cfg_format = namedtuple("INDEX_PLOT_CONFIG", ("unit", "unit_factor", "binsize", "yscale"))
 
-MEANS_OF_HISTS_VIZ_CFG = {
+MEANS_OF_HISTS_VIZ_DEFAULTS = {
     "altcddETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
     "altcsdiETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
     "altcwdETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
@@ -42,7 +46,7 @@ MEANS_OF_HISTS_VIZ_CFG = {
     "tx90pETCCDI": _cfg_format("percents", 1, 1, "linear")
 }
 
-HISTS_OF_MEANS_VIZ_CFG = {
+HISTS_OF_MEANS_VIZ_DEFAULTS = {
     "altcddETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 1, "linear"),
     "altcsdiETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 1, "linear"),
     "altcwdETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 0.2, "linear"),
@@ -75,3 +79,24 @@ HISTS_OF_MEANS_VIZ_CFG = {
     "tx10pETCCDI": _cfg_format("percents", 1, 0.5, "linear"),
     "tx90pETCCDI": _cfg_format("percents", 1, 0.5, "linear")
 }
+
+
+@dataclass
+class RecipeConfig:
+    unit: str
+    unit_factor: float
+    yscale: str
+    binsize: Optional[float]
+    bincount: Optional[float] = None
+    reference_window_size: float = DEFAULT_REFERENCE_WINDOW_SIZE
+    sliding_window_size: float = DEFAULT_SLIDING_WINDOW_SIZE
+    slide_step: float = DEFAULT_SLIDE_STEP
+
+
+def get_means_of_hists_config(index_name):
+    default_index_cfg = MEANS_OF_HISTS_VIZ_DEFAULTS[index_name]
+    return RecipeConfig(**default_index_cfg._asdict())
+
+def get_hists_of_means_config(index_name):
+    default_index_cfg = MEANS_OF_HISTS_VIZ_DEFAULTS[index_name]
+    return RecipeConfig(**default_index_cfg._asdict())

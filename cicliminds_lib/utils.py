@@ -1,6 +1,9 @@
 import tempfile
 import subprocess
 
+from dataclasses import asdict
+from dataclasses import replace
+
 import numpy as np
 import xarray as xr
 
@@ -30,3 +33,25 @@ def data_to_data(func, newvar=None):
         newvar_name = newvar if newvar is not None else data.name
         return res[newvar_name]
     return _func
+
+
+def _get_dataclass_patch_from_dict(cfg, update):
+    patch_fields = set(asdict(cfg)).intersection(set(list(update)))
+    patch = {k: update[k] for k in patch_fields}
+    return patch
+
+
+def _get_dataclass_patch_from_ntuple(cfg, update):
+    patch_fields = set(fields(cfg)).intersection(set(update._fields))
+    patch = {k: v for k in fields(cfg) if k in update}
+    return patch
+
+
+def patch_config(cfg, update):
+    if isinstance(update, dict):
+        patch = _get_dataclass_patch_from_dict(cfg, update)
+    elif hasattr(update, "_fields"):
+        patch = _get_dataclass_patch_from_ntuple(cfg, update)
+    else:
+        raise ValueError("unsupported type of the patch")
+    return replace(cfg, **patch)

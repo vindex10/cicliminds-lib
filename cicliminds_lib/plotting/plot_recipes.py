@@ -6,12 +6,14 @@ from matplotlib import cm
 import cartopy.crs as ccrs
 import xhistogram.xarray as xh
 
+from cicliminds_lib.utils import patch_config
+
 from cicliminds_lib.bindings import cdo_gridweights_from_data
 from cicliminds_lib.bindings import cdo_fldmean_from_data
 
-from cicliminds_lib.plotting.configs import MEANS_OF_HISTS_VIZ_CFG
-from cicliminds_lib.plotting.configs import HISTS_OF_MEANS_VIZ_CFG
 from cicliminds_lib.plotting.configs import COLORMAP
+from cicliminds_lib.plotting.configs import get_means_of_hists_config
+from cicliminds_lib.plotting.configs import get_hists_of_means_config
 from cicliminds_lib.plotting.elements import get_mean
 from cicliminds_lib.plotting.elements import get_spreads
 from cicliminds_lib.plotting._helpers import _standardize_data
@@ -61,10 +63,11 @@ def plot_spreads(ax, spreads, x, widths):
     ax.fill_between(x - widths/2, lower_edge, upper_edge, color="#eee", label="min-max", step="post")
 
 
-def plot_means_of_hists(ax, val):
-    cfg = MEANS_OF_HISTS_VIZ_CFG[val.name]
+def plot_means_of_hists(ax, val, query):
+    default_cfg = get_means_of_hists_config(val.name)
+    cfg = patch_config(default_cfg, query)
     val = _standardize_data(val, cfg)
-    timeslices = _generate_timeslices(val)
+    timeslices = _generate_timeslices(val, cfg)
     _, timeslice = next(timeslices)
     bins, x, widths = _get_histogram_params(val.isel(time=timeslice), cfg.binsize)
     hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
@@ -81,10 +84,11 @@ def plot_means_of_hists(ax, val):
     _configure_axes(ax, cfg, "fldmean last")
 
 
-def plot_means_of_hists_diff(ax, val):
-    cfg = MEANS_OF_HISTS_VIZ_CFG[val.name]
+def plot_means_of_hists_diff(ax, val, query):
+    default_cfg = get_means_of_hists_config(val.name)
+    cfg = patch_config(default_cfg, query)
     val = _standardize_data(val, cfg)
-    timeslices = _generate_timeslices(val)
+    timeslices = _generate_timeslices(val, cfg)
     _, timeslice = next(timeslices)
     bins, _, _ = _get_histogram_params(val.isel(time=timeslice), cfg.binsize)
     hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
@@ -98,11 +102,12 @@ def plot_means_of_hists_diff(ax, val):
     ax.set_yscale("linear")
 
 
-def plot_hists_of_means(ax, val):
-    cfg = HISTS_OF_MEANS_VIZ_CFG[val.name]
+def plot_hists_of_means(ax, val, query):
+    default_cfg = get_hists_of_means_config(val.name)
+    cfg = patch_config(default_cfg, query)
     val = _standardize_data(val, cfg)
     mean = get_mean(val)
-    timeslices = _generate_timeslices(mean)
+    timeslices = _generate_timeslices(mean, cfg)
     _, timeslice = next(timeslices)
     bins, x, widths = _get_histogram_params(mean.isel(time=timeslice), cfg.binsize)
     hist = xh.histogram(mean.isel(time=timeslice), bins=[bins], dim=None)  # dim=None to flatten the variable
@@ -114,11 +119,12 @@ def plot_hists_of_means(ax, val):
     _configure_axes(ax, cfg, "fldmean first")
 
 
-def plot_hists_of_means_diff(ax, val):
-    cfg = HISTS_OF_MEANS_VIZ_CFG[val.name]
+def plot_hists_of_means_diff(ax, val, query):
+    default_cfg = get_hists_of_means_config(val.name)
+    cfg = patch_config(default_cfg, query)
     val = _standardize_data(val, cfg)
     mean = get_mean(val)
-    timeslices = _generate_timeslices(mean)
+    timeslices = _generate_timeslices(mean, cfg)
     _, timeslice = next(timeslices)
     bins, _, _ = _get_histogram_params(mean.isel(time=timeslice), cfg.binsize)
     ref_hist = xh.histogram(mean.isel(time=timeslice), bins=[bins], dim=None)  # dim=None to flatten the variable
@@ -130,11 +136,12 @@ def plot_hists_of_means_diff(ax, val):
     ax.set_yscale("linear")
 
 
-def plot_hist_of_timeavgs(ax, val):
-    cfg = MEANS_OF_HISTS_VIZ_CFG[val.name]
+def plot_hist_of_timeavgs(ax, val, query):
+    default_cfg = get_means_of_hists_config(val.name)
+    cfg = patch_config(default_cfg, query)
     val = _standardize_data(val, cfg)
     weights = cdo_gridweights_from_data(val)
-    timeslices = _generate_timeslices(val)
+    timeslices = _generate_timeslices(val, query)
     _, timeslice = next(timeslices)
     mean = val.isel(time=timeslice).mean(dim=["time"])
     bins, x, widths = _get_histogram_params(mean, cfg.binsize)
@@ -148,11 +155,12 @@ def plot_hist_of_timeavgs(ax, val):
     _configure_axes(ax, cfg, "fld hist, timeavg")
 
 
-def plot_hist_of_timeavgs_diff(ax, val):
-    cfg = MEANS_OF_HISTS_VIZ_CFG[val.name]
+def plot_hist_of_timeavgs_diff(ax, val, query):
+    default_cfg = get_means_of_hists_config(val.name)
+    cfg = patch_config(default_cfg, query)
     val = _standardize_data(val, cfg)
     weights = cdo_gridweights_from_data(val)
-    timeslices = _generate_timeslices(val)
+    timeslices = _generate_timeslices(val, cfg)
     _, timeslice = next(timeslices)
     mean = val.isel(time=timeslice).mean(dim=["time"])
     bins, _, _ = _get_histogram_params(mean, cfg.binsize)
