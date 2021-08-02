@@ -64,12 +64,12 @@ def plot_means_of_hists(ax, val, query):
     timeslices = _generate_timeslices(val, cfg)
     _, timeslice = next(timeslices)
     bins, x, widths = _get_histogram_params(val.isel(time=timeslice), cfg.binsize)
-    hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
+    hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"], density=cfg.normalize_histograms)
     mean = get_mean(hist)
     plot_mean(ax, mean, x, widths, timeslice)
     cmap = cm.get_cmap(COLORMAP)
     for intensity, timeslice in timeslices:
-        hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
+        hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"], density=cfg.normalize_histograms)
         means = cdo_fldmean_from_data(hist).values[0, 0]
         ax.stairs(means, bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
     _configure_axes(ax, cfg)

@@ -8,6 +8,7 @@ import numpy as np
 DEFAULT_REFERENCE_WINDOW_SIZE = 50
 DEFAULT_SLIDING_WINDOW_SIZE = 30
 DEFAULT_SLIDE_STEP = 30
+DEFAULT_NORMALIZE_HISTOGRAMS = True
 COLORMAP = "gist_rainbow"
 
 _cfg_format = namedtuple("INDEX_PLOT_CONFIG", ("unit", "unit_factor", "binsize", "yscale"))
@@ -91,6 +92,7 @@ class RecipeConfig:
     reference_window_size: float = DEFAULT_REFERENCE_WINDOW_SIZE
     sliding_window_size: float = DEFAULT_SLIDING_WINDOW_SIZE
     slide_step: float = DEFAULT_SLIDE_STEP
+    normalize_histograms: bool = DEFAULT_NORMALIZE_HISTOGRAMS
 
 
 def get_means_of_hists_config(index_name):

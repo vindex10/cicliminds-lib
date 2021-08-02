@@ -15,7 +15,8 @@ def _infer_hist_bins(vals, binsize):
 
 def _generate_timeslices(val, cfg):
     size = len(val.time)
-    for start in range(0, size-cfg.sliding_window_size, cfg.slide_step):
+    yield 0, slice(0, cfg.reference_window_size)
+    for start in range(cfg.reference_window_size, size-cfg.sliding_window_size, cfg.slide_step):
         intensity = start/size
         yield intensity, slice(start, start+cfg.sliding_window_size)
 
