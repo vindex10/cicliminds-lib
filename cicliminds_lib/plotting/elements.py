@@ -16,9 +16,3 @@ def get_sigma_band(val, s):
 def get_mean(val):
     mean = cdo_fldmean_from_data(val)
     return mean
-
-
-def get_spreads(val):
-    min_edge = cdo_fldmin_from_data(val)
-    max_edge = cdo_fldmax_from_data(val)
-    return min_edge, max_edge

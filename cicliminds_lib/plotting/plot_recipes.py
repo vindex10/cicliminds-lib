@@ -15,7 +15,6 @@ from cicliminds_lib.plotting.configs import COLORMAP
 from cicliminds_lib.plotting.configs import get_means_of_hists_config
 from cicliminds_lib.plotting.configs import get_hists_of_means_config
 from cicliminds_lib.plotting.elements import get_mean
-from cicliminds_lib.plotting.elements import get_spreads
 from cicliminds_lib.plotting._helpers import _standardize_data
 from cicliminds_lib.plotting._helpers import _generate_timeslices
 from cicliminds_lib.plotting._helpers import _get_histogram_params
@@ -58,11 +57,6 @@ def plot_mean(ax, mean, x, widths, timeslice):
     ax.bar(x, mean.values.ravel(), widths, label=f"{timeslice.start}-{timeslice.stop}")
 
 
-def plot_spreads(ax, spreads, x, widths):
-    lower_edge, upper_edge = spreads[0].values.ravel(), spreads[1].values.ravel()
-    ax.fill_between(x - widths/2, lower_edge, upper_edge, color="#eee", label="min-max", step="post")
-
-
 def plot_means_of_hists(ax, val, query):
     default_cfg = get_means_of_hists_config(val.name)
     cfg = patch_config(default_cfg, query)
@@ -73,9 +67,6 @@ def plot_means_of_hists(ax, val, query):
     hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
     mean = get_mean(hist)
     plot_mean(ax, mean, x, widths, timeslice)
-    if cfg.yscale == "log":
-        spreads = get_spreads(hist)
-        plot_spreads(ax, spreads, x, widths)
     cmap = cm.get_cmap(COLORMAP)
     for intensity, timeslice in timeslices:
         hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
