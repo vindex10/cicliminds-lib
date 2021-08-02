@@ -72,7 +72,7 @@ def plot_means_of_hists(ax, val, query):
         hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
         means = cdo_fldmean_from_data(hist).values[0, 0]
         ax.stairs(means, bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
-    _configure_axes(ax, cfg, "fldmean last")
+    _configure_axes(ax, cfg)
 
 
 def plot_means_of_hists_diff(ax, val, query):
@@ -89,7 +89,7 @@ def plot_means_of_hists_diff(ax, val, query):
         hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
         mean = cdo_fldmean_from_data(hist) - ref_mean
         ax.stairs(mean.values[0, 0], bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
-    _configure_axes(ax, cfg, "fldmean last, refdiff")
+    _configure_axes(ax, cfg)
     ax.set_yscale("linear")
 
 
@@ -107,7 +107,7 @@ def plot_hists_of_means(ax, val, query):
     for intensity, timeslice in timeslices:
         hist = xh.histogram(mean.isel(time=timeslice), bins=[bins], dim=None)  # dim=None to flatten the variable
         ax.stairs(hist, bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
-    _configure_axes(ax, cfg, "fldmean first")
+    _configure_axes(ax, cfg)
 
 
 def plot_hists_of_means_diff(ax, val, query):
@@ -123,7 +123,7 @@ def plot_hists_of_means_diff(ax, val, query):
     for intensity, timeslice in timeslices:
         hist = xh.histogram(mean.isel(time=timeslice), bins=[bins], dim=None)  # dim=None to flatten the variable
         ax.stairs(hist-ref_hist, bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
-    _configure_axes(ax, cfg, "fldmean first, refdiff")
+    _configure_axes(ax, cfg)
     ax.set_yscale("linear")
 
 
@@ -143,7 +143,7 @@ def plot_hist_of_timeavgs(ax, val, query):
         mean = val.isel(time=timeslice).mean(dim=["time"])
         hist = xh.histogram(mean, bins=[bins], dim=["lat", "lon"], weights=weights)
         ax.stairs(hist, bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
-    _configure_axes(ax, cfg, "fld hist, timeavg")
+    _configure_axes(ax, cfg)
 
 
 def plot_hist_of_timeavgs_diff(ax, val, query):
@@ -161,5 +161,5 @@ def plot_hist_of_timeavgs_diff(ax, val, query):
         mean = val.isel(time=timeslice).mean(dim=["time"])
         hist = xh.histogram(mean, bins=[bins], dim=["lat", "lon"], weights=weights)
         ax.stairs(hist - ref_hist, bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
-    _configure_axes(ax, cfg, "fld hist, timeavg, refdiff")
+    _configure_axes(ax, cfg)
     ax.set_yscale("linear")

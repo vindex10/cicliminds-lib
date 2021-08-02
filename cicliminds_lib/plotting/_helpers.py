@@ -20,8 +20,7 @@ def _generate_timeslices(val, cfg):
         yield intensity, slice(start, start+cfg.sliding_window_size)
 
 
-def _configure_axes(ax, cfg, title):
-    ax.set_title(title)
+def _configure_axes(ax, cfg):
     ax.set_xlabel(f"{cfg.unit}, binsize={cfg.binsize}")
     ax.set_ylabel("N")
     ax.set_yscale(cfg.yscale)
