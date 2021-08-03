@@ -93,6 +93,7 @@ class RecipeConfig:
     sliding_window_size: float = DEFAULT_SLIDING_WINDOW_SIZE
     slide_step: float = DEFAULT_SLIDE_STEP
     normalize_histograms: bool = DEFAULT_NORMALIZE_HISTOGRAMS
+    init_year: float = 0
 
 
 def get_means_of_hists_config(index_name):

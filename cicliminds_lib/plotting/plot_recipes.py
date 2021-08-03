@@ -19,6 +19,7 @@ from cicliminds_lib.plotting._helpers import _standardize_data
 from cicliminds_lib.plotting._helpers import _generate_timeslices
 from cicliminds_lib.plotting._helpers import _get_histogram_params
 from cicliminds_lib.plotting._helpers import _configure_axes
+from cicliminds_lib.plotting._helpers import _get_year_label
 
 
 def plot_median_idx(ax, dat, idx, scale=1):
@@ -53,31 +54,29 @@ def plot_idx_value(dat, idx):
     plt.close()
 
 
-def plot_mean(ax, mean, x, widths, timeslice):
-    ax.bar(x, mean.values.ravel(), widths, label=f"{timeslice.start}-{timeslice.stop}")
-
-
 def plot_means_of_hists(ax, val, query):
     default_cfg = get_means_of_hists_config(val.name)
-    cfg = patch_config(default_cfg, query)
+    init_year = min(int(year) for timespan in query["timespan"] for year in timespan.split("-"))
+    cfg = patch_config(default_cfg, [query, {"init_year": init_year}])
     val = _standardize_data(val, cfg)
     timeslices = _generate_timeslices(val, cfg)
     _, timeslice = next(timeslices)
     bins, x, widths = _get_histogram_params(val, cfg.binsize)
     hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"], density=cfg.normalize_histograms)
     mean = get_mean(hist)
-    plot_mean(ax, mean, x, widths, timeslice)
+    ax.bar(x, mean.values.ravel(), widths, label=_get_year_label(cfg, timeslice))
     cmap = cm.get_cmap(COLORMAP)
     for intensity, timeslice in timeslices:
         hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"], density=cfg.normalize_histograms)
         means = cdo_fldmean_from_data(hist).values[0, 0]
-        ax.stairs(means, bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
+        ax.stairs(means, bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
     _configure_axes(ax, cfg)
 
 
 def plot_means_of_hists_diff(ax, val, query):
     default_cfg = get_means_of_hists_config(val.name)
-    cfg = patch_config(default_cfg, query)
+    init_year= min(int(year) for timespan in query["timespan"] for year in timespan.split("-"))
+    cfg = patch_config(default_cfg, [query, {"init_year": init_year}])
     val = _standardize_data(val, cfg)
     timeslices = _generate_timeslices(val, cfg)
     _, timeslice = next(timeslices)
@@ -88,31 +87,33 @@ def plot_means_of_hists_diff(ax, val, query):
     for intensity, timeslice in timeslices:
         hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
         mean = cdo_fldmean_from_data(hist) - ref_mean
-        ax.stairs(mean.values[0, 0], bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
+        ax.stairs(mean.values[0, 0], bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
     _configure_axes(ax, cfg)
     ax.set_yscale("linear")
 
 
 def plot_hists_of_means(ax, val, query):
     default_cfg = get_hists_of_means_config(val.name)
-    cfg = patch_config(default_cfg, query)
+    init_year= min(int(year) for timespan in query["timespan"] for year in timespan.split("-"))
+    cfg = patch_config(default_cfg, [query, {"init_year": init_year}])
     val = _standardize_data(val, cfg)
     mean = get_mean(val)
     timeslices = _generate_timeslices(mean, cfg)
     _, timeslice = next(timeslices)
     bins, x, widths = _get_histogram_params(mean.isel(time=timeslice), cfg.binsize)
     hist = xh.histogram(mean.isel(time=timeslice), bins=[bins], dim=None)  # dim=None to flatten the variable
-    plot_mean(ax, hist, x, widths, timeslice)
+    ax.bar(x, hist.values.ravel(), widths, label=_get_year_label(cfg, timeslice))
     cmap = cm.get_cmap(COLORMAP)
     for intensity, timeslice in timeslices:
         hist = xh.histogram(mean.isel(time=timeslice), bins=[bins], dim=None)  # dim=None to flatten the variable
-        ax.stairs(hist, bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
+        ax.stairs(hist, bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
     _configure_axes(ax, cfg)
 
 
 def plot_hists_of_means_diff(ax, val, query):
     default_cfg = get_hists_of_means_config(val.name)
-    cfg = patch_config(default_cfg, query)
+    init_year= min(int(year) for timespan in query["timespan"] for year in timespan.split("-"))
+    cfg = patch_config(default_cfg, [query, {"init_year": init_year}])
     val = _standardize_data(val, cfg)
     mean = get_mean(val)
     timeslices = _generate_timeslices(mean, cfg)
@@ -122,14 +123,15 @@ def plot_hists_of_means_diff(ax, val, query):
     cmap = cm.get_cmap(COLORMAP)
     for intensity, timeslice in timeslices:
         hist = xh.histogram(mean.isel(time=timeslice), bins=[bins], dim=None)  # dim=None to flatten the variable
-        ax.stairs(hist-ref_hist, bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
+        ax.stairs(hist-ref_hist, bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
     _configure_axes(ax, cfg)
     ax.set_yscale("linear")
 
 
 def plot_hist_of_timeavgs(ax, val, query):
     default_cfg = get_means_of_hists_config(val.name)
-    cfg = patch_config(default_cfg, query)
+    init_year= min(int(year) for timespan in query["timespan"] for year in timespan.split("-"))
+    cfg = patch_config(default_cfg, [query, {"init_year": init_year}])
     val = _standardize_data(val, cfg)
     weights = cdo_gridweights_from_data(val)
     timeslices = _generate_timeslices(val, query)
@@ -137,18 +139,19 @@ def plot_hist_of_timeavgs(ax, val, query):
     mean = val.isel(time=timeslice).mean(dim=["time"])
     bins, x, widths = _get_histogram_params(mean, cfg.binsize)
     hist = xh.histogram(mean, bins=[bins], dim=["lat", "lon"], weights=weights)
-    plot_mean(ax, hist, x, widths, timeslice)
+    ax.bar(x, hist.values.ravel(), widths, label=_get_year_label(cfg, timeslice))
     cmap = cm.get_cmap(COLORMAP)
     for intensity, timeslice in timeslices:
         mean = val.isel(time=timeslice).mean(dim=["time"])
         hist = xh.histogram(mean, bins=[bins], dim=["lat", "lon"], weights=weights)
-        ax.stairs(hist, bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
+        ax.stairs(hist, bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
     _configure_axes(ax, cfg)
 
 
 def plot_hist_of_timeavgs_diff(ax, val, query):
     default_cfg = get_means_of_hists_config(val.name)
-    cfg = patch_config(default_cfg, query)
+    init_year= min(int(year) for timespan in query["timespan"] for year in timespan.split("-"))
+    cfg = patch_config(default_cfg, [query, {"init_year": init_year}])
     val = _standardize_data(val, cfg)
     weights = cdo_gridweights_from_data(val)
     timeslices = _generate_timeslices(val, cfg)
@@ -160,6 +163,6 @@ def plot_hist_of_timeavgs_diff(ax, val, query):
     for intensity, timeslice in timeslices:
         mean = val.isel(time=timeslice).mean(dim=["time"])
         hist = xh.histogram(mean, bins=[bins], dim=["lat", "lon"], weights=weights)
-        ax.stairs(hist - ref_hist, bins, label=f"{timeslice.start}-{timeslice.stop}", color=cmap(intensity))
+        ax.stairs(hist - ref_hist, bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
     _configure_axes(ax, cfg)
     ax.set_yscale("linear")

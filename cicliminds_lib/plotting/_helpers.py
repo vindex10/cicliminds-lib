@@ -39,3 +39,9 @@ def _get_histogram_params(val, binsize):
     x = (bins[1:] + bins[:-1])/2
     widths = bins[1:] - bins[:-1]
     return bins, x, widths
+
+
+def _get_year_label(cfg, timeslice):
+    start = cfg.init_year + timeslice.start
+    stop = cfg.init_year + timeslice.stop
+    return f"{start}-{stop}"

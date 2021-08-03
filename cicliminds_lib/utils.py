@@ -52,6 +52,12 @@ def patch_config(cfg, update):
         patch = _get_dataclass_patch_from_dict(cfg, update)
     elif hasattr(update, "_fields"):
         patch = _get_dataclass_patch_from_ntuple(cfg, update)
+    elif isinstance(update, list):
+        if not update:
+            return cfg
+        patch = patch_config(cfg, update[0])
+        patch = patch_config(patch, update[1:])
+        patch = asdict(patch)
     else:
         raise ValueError("unsupported type of the patch")
     return replace(cfg, **patch)
