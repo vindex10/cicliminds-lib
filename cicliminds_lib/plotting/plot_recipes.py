@@ -63,7 +63,7 @@ def plot_means_of_hists(ax, val, query):
     val = _standardize_data(val, cfg)
     timeslices = _generate_timeslices(val, cfg)
     _, timeslice = next(timeslices)
-    bins, x, widths = _get_histogram_params(val.isel(time=timeslice), cfg.binsize)
+    bins, x, widths = _get_histogram_params(val, cfg.binsize)
     hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"], density=cfg.normalize_histograms)
     mean = get_mean(hist)
     plot_mean(ax, mean, x, widths, timeslice)
