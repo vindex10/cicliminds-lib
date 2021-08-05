@@ -35,18 +35,6 @@ def data_to_data(func, newvar=None):
     return _func
 
 
-def _get_dataclass_patch_from_dict(cfg, update):
-    patch_fields = set(asdict(cfg)).intersection(set(list(update)))
-    patch = {k: update[k] for k in patch_fields}
-    return patch
-
-
-def _get_dataclass_patch_from_ntuple(cfg, update):
-    patch_fields = set(fields(cfg)).intersection(set(update._fields))
-    patch = {k: v for k in fields(cfg) if k in update}
-    return patch
-
-
 def patch_config(cfg, update):
     if isinstance(update, dict):
         patch = _get_dataclass_patch_from_dict(cfg, update)
@@ -61,3 +49,15 @@ def patch_config(cfg, update):
     else:
         raise ValueError("unsupported type of the patch")
     return replace(cfg, **patch)
+
+
+def _get_dataclass_patch_from_dict(cfg, update):
+    patch_fields = set(asdict(cfg)).intersection(set(list(update)))
+    patch = {k: update[k] for k in patch_fields}
+    return patch
+
+
+def _get_dataclass_patch_from_ntuple(cfg, update):
+    patch_fields = set(asdict(cfg)).intersection(set(update._fields))
+    patch = {k: update[k] for k in patch_fields if k in update}
+    return patch

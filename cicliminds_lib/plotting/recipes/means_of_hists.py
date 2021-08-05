@@ -17,45 +17,56 @@ from cicliminds_lib.plotting._helpers import _configure_axes
 from cicliminds_lib.plotting._helpers import _get_year_label
 
 
-def plot_means_of_hists(ax, val, query):
-    default_cfg = get_means_of_hists_config(val.name)
-    cfg = patch_config(default_cfg, query)
-    val = _standardize_data(val, cfg)
-    timeslices = _generate_timeslices(val, cfg)
-    _, timeslice = next(timeslices)
-    bins, x, widths = _get_histogram_params(val, cfg.binsize)
-    hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"], density=cfg.normalize_histograms)
-    mean = get_mean(hist)
-    ax.bar(x, mean.values.ravel(), widths, label=_get_year_label(cfg, timeslice))
-    cmap = cm.get_cmap(cfg.colormap)
-    for intensity, timeslice in timeslices:
+class MeansOfHistsRecipe:
+    @classmethod
+    def plot(cls, ax, val, query):
+        default_cfg = cls.get_default_config(val.name)
+        cfg = patch_config(default_cfg, query)
+        val = _standardize_data(val, cfg)
+        timeslices = _generate_timeslices(val, cfg)
+        _, timeslice = next(timeslices)
+        bins, x, widths = _get_histogram_params(val, cfg.binsize)
         hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"], density=cfg.normalize_histograms)
-        means = cdo_fldmean_from_data(hist).values[0, 0]
-        ax.stairs(means, bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
-    _configure_axes(ax, cfg)
+        mean = get_mean(hist)
+        ax.bar(x, mean.values.ravel(), widths, label=_get_year_label(cfg, timeslice))
+        cmap = cm.get_cmap(cfg.colormap)
+        for intensity, timeslice in timeslices:
+            hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"], density=cfg.normalize_histograms)
+            means = cdo_fldmean_from_data(hist).values[0, 0]
+            ax.stairs(means, bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
+        _configure_axes(ax, cfg)
+
+    @staticmethod
+    def get_default_config(index_name):
+        default_index_cfg = MEANS_OF_HISTS_VIZ_DEFAULTS[index_name]
+        return RecipeConfig(**default_index_cfg._asdict())
 
 
-def plot_means_of_hists_diff(ax, val, query):
-    default_cfg = get_means_of_hists_config(val.name)
-    cfg = patch_config(default_cfg, query)
-    val = _standardize_data(val, cfg)
-    timeslices = _generate_timeslices(val, cfg)
-    _, timeslice = next(timeslices)
-    bins, _, _ = _get_histogram_params(val.isel(time=timeslice), cfg.binsize)
-    hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
-    ref_mean = get_mean(hist)
-    cmap = cm.get_cmap(cfg.colormap)
-    for intensity, timeslice in timeslices:
+class MeansOfHistsDiffRecipe:
+    @classmethod
+    def plot(cls, ax, val, query):
+        default_cfg = cls.get_default_config(val.name)
+        cfg = patch_config(default_cfg, query)
+        val = _standardize_data(val, cfg)
+        timeslices = _generate_timeslices(val, cfg)
+        _, timeslice = next(timeslices)
+        bins, _, _ = _get_histogram_params(val.isel(time=timeslice), cfg.binsize)
         hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
-        mean = cdo_fldmean_from_data(hist) - ref_mean
-        ax.stairs(mean.values[0, 0], bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
-    _configure_axes(ax, cfg)
-    ax.set_yscale("linear")
+        ref_mean = get_mean(hist)
+        cmap = cm.get_cmap(cfg.colormap)
+        for intensity, timeslice in timeslices:
+            hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
+            mean = cdo_fldmean_from_data(hist) - ref_mean
+            ax.stairs(mean.values[0, 0], bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
+        _configure_axes(ax, cfg)
+        ax.set_yscale("linear")
 
-
-def get_means_of_hists_config(index_name):
-    default_index_cfg = MEANS_OF_HISTS_VIZ_DEFAULTS[index_name]
-    return RecipeConfig(**default_index_cfg._asdict())
+    @staticmethod
+    def get_default_config(index_name):
+        default_index_cfg = MEANS_OF_HISTS_VIZ_DEFAULTS[index_name]
+        res = RecipeConfig(**default_index_cfg._asdict())
+        res.yscale = "linear"
+        return res
 
 
 _cfg_format = namedtuple("MEANS_OF_HISTS_VIZ_DEFAULTS_ROW", ("unit", "unit_factor", "binsize", "yscale"))
