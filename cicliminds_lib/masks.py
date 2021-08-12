@@ -1,6 +1,8 @@
 import numpy as np
 import regionmask
-from cicliminds_lib.masks.loaders import load_reference_regions
+
+
+REFERENCE_REGIONS = regionmask.defined_regions.ar6.land
 
 
 def get_land_mask(data):
@@ -17,21 +19,19 @@ def get_nan_mask(data):
 
 
 def get_reference_region_mask(data, abbrev):
-    regions = load_reference_regions()
-    return _get_bool_mask_by_abbrev(regions, data, abbrev)
+    return _get_bool_mask_by_abbrev(data, abbrev)
 
 
 def iter_reference_region_masks(data, abbrevs=None):
-    regions = load_reference_regions()
     if abbrevs is None:
-        abbrevs = regions.abbrevs
+        abbrevs = REFERENCE_REGIONS.abbrevs
     for abbrev in abbrevs:
-        bool_mask = _get_bool_mask_by_abbrev(regions, data, abbrev)
+        bool_mask = _get_bool_mask_by_abbrev(data, abbrev)
         yield abbrev, bool_mask
 
 
-def _get_bool_mask_by_abbrev(regions, data, abbrev):
-    reg = regions[[abbrev]]
+def _get_bool_mask_by_abbrev(data, abbrev):
+    reg = REFERENCE_REGIONS[[abbrev]]
     mask = reg.mask(data.lon, data.lat)
     bool_mask = ~np.isnan(mask)
     return bool_mask
