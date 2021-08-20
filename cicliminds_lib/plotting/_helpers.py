@@ -1,13 +1,26 @@
 import numpy as np
 
 
-def _infer_hist_bins(vals, binsize):
+COMMON_DATA_VARS = ["lon_bnds", "lat_bnds", "time_bnds"]
+
+
+def _get_variable_name(dataset):
+    variable = [i for i in dataset.data_vars.keys() if i not in COMMON_DATA_VARS]
+    if len(variable) > 1:
+        raise Exception("More than 1 variable in the dataset")
+    return variable[0]
+
+
+def _infer_hist_bins(vals, binsize, bincount):
     # min_val = np.min(vals)
     # max_val = np.max(vals)
     min_val = np.nanquantile(vals, 0.00001)
     max_val = np.nanquantile(vals, 0.99999)
 
     left_edge = np.floor(min_val)
+    if bincount is not None:
+        return np.linspace(left_edge, max_val, bincount)
+
     right_edge = ((max_val - left_edge)//binsize)*binsize + left_edge
 
     return np.arange(left_edge, right_edge, binsize)
@@ -34,8 +47,8 @@ def _standardize_data(val, cfg):
     return val
 
 
-def _get_histogram_params(val, binsize):
-    bins = _infer_hist_bins(val, binsize)
+def _get_histogram_params(val, binsize=None, bincount=None):
+    bins = _infer_hist_bins(val, binsize=binsize, bincount=bincount)
     x = (bins[1:] + bins[:-1])/2
     widths = bins[1:] - bins[:-1]
     return bins, x, widths

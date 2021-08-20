@@ -15,23 +15,28 @@ from cicliminds_lib.plotting._helpers import _generate_timeslices
 from cicliminds_lib.plotting._helpers import _get_histogram_params
 from cicliminds_lib.plotting._helpers import _configure_axes
 from cicliminds_lib.plotting._helpers import _get_year_label
+from cicliminds_lib.plotting._helpers import _get_variable_name
 
 
 class MeansOfHistsRecipe:
     @classmethod
-    def plot(cls, ax, val, query):
-        default_cfg = cls.get_default_config(val.name)
+    def plot(cls, ax, dataset, query):
+        variable = _get_variable_name(dataset)
+        val = dataset[variable]
+        default_cfg = cls.get_default_config(variable)
         cfg = patch_config(default_cfg, query)
         val = _standardize_data(val, cfg)
         timeslices = _generate_timeslices(val, cfg)
         _, timeslice = next(timeslices)
-        bins, x, widths = _get_histogram_params(val, cfg.binsize)
-        hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"], density=cfg.normalize_histograms)
+        bins, x, widths = _get_histogram_params(val, binsize=cfg.binsize, bincount=cfg.bincount)
+        hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
+                            density=cfg.normalize_histograms)
         mean = get_mean(hist)
         ax.bar(x, mean.values.ravel(), widths, label=_get_year_label(cfg, timeslice))
         cmap = cm.get_cmap(cfg.colormap)
         for intensity, timeslice in timeslices:
-            hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"], density=cfg.normalize_histograms)
+            hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
+                                density=cfg.normalize_histograms)
             means = cdo_fldmean_from_data(hist).values[0, 0]
             ax.stairs(means, bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
         _configure_axes(ax, cfg)
@@ -44,18 +49,22 @@ class MeansOfHistsRecipe:
 
 class MeansOfHistsDiffRecipe:
     @classmethod
-    def plot(cls, ax, val, query):
-        default_cfg = cls.get_default_config(val.name)
+    def plot(cls, ax, dataset, query):
+        variable = _get_variable_name(dataset)
+        val = dataset[variable]
+        default_cfg = cls.get_default_config(variable)
         cfg = patch_config(default_cfg, query)
         val = _standardize_data(val, cfg)
         timeslices = _generate_timeslices(val, cfg)
         _, timeslice = next(timeslices)
-        bins, _, _ = _get_histogram_params(val.isel(time=timeslice), cfg.binsize)
-        hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
+        bins, _, _ = _get_histogram_params(val.isel(time=timeslice), binsize=cfg.binsize, bincount=cfg.bincount)
+        hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
+                            density=cfg.normalize_histograms)
         ref_mean = get_mean(hist)
         cmap = cm.get_cmap(cfg.colormap)
         for intensity, timeslice in timeslices:
-            hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time"])
+            hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
+                                density=cfg.normalize_histograms)
             mean = cdo_fldmean_from_data(hist) - ref_mean
             ax.stairs(mean.values[0, 0], bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
         _configure_axes(ax, cfg)

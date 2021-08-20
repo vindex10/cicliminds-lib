@@ -13,18 +13,21 @@ from cicliminds_lib.plotting._helpers import _generate_timeslices
 from cicliminds_lib.plotting._helpers import _get_histogram_params
 from cicliminds_lib.plotting._helpers import _configure_axes
 from cicliminds_lib.plotting._helpers import _get_year_label
+from cicliminds_lib.plotting._helpers import _get_variable_name
 
 
 class HistsOfMeansRecipe:
     @classmethod
-    def plot(cls, ax, val, query):
-        default_cfg = cls.get_default_config(val.name)
+    def plot(cls, ax, dataset, query):
+        variable = _get_variable_name(dataset)
+        val = dataset[variable]
+        default_cfg = cls.get_default_config(variable)
         cfg = patch_config(default_cfg, query)
         val = _standardize_data(val, cfg)
-        mean = get_mean(val)
+        mean = get_mean(val.sum(dim=["model"]))/val.model.shape[0]  # average model out first
         timeslices = _generate_timeslices(mean, cfg)
         _, timeslice = next(timeslices)
-        bins, x, widths = _get_histogram_params(mean.isel(time=timeslice), cfg.binsize)
+        bins, x, widths = _get_histogram_params(mean.isel(time=timeslice), binsize=cfg.binsize, bincount=cfg.bincount)
         hist = xh.histogram(mean.isel(time=timeslice), bins=[bins], dim=None)  # dim=None to flatten the variable
         ax.bar(x, hist.values.ravel(), widths, label=_get_year_label(cfg, timeslice))
         cmap = cm.get_cmap(cfg.colormap)
@@ -41,14 +44,17 @@ class HistsOfMeansRecipe:
 
 class HistsOfMeansDiffRecipe:
     @classmethod
-    def plot(cls, ax, val, query):
-        default_cfg = cls.get_default_config(val.name)
+    def plot(cls, ax, dataset, query):
+        variable = _get_variable_name(dataset)
+        val = dataset[variable]
+        default_cfg = cls.get_default_config(variable)
         cfg = patch_config(default_cfg, query)
         val = _standardize_data(val, cfg)
-        mean = get_mean(val)
+        mean = get_mean(val.sum(dim=["model"]))/val.model.shape[0]  # average model out first
+        timeslices = _generate_timeslices(mean, cfg)
         timeslices = _generate_timeslices(mean, cfg)
         _, timeslice = next(timeslices)
-        bins, _, _ = _get_histogram_params(mean.isel(time=timeslice), cfg.binsize)
+        bins, _, _ = _get_histogram_params(mean.isel(time=timeslice), binsize=cfg.binsize, bincount=cfg.bincount)
         ref_hist = xh.histogram(mean.isel(time=timeslice), bins=[bins], dim=None)  # dim=None to flatten the variable
         cmap = cm.get_cmap(cfg.colormap)
         for intensity, timeslice in timeslices:
