@@ -1,7 +1,7 @@
 import numpy as np
 
 
-COMMON_DATA_VARS = ["lon_bnds", "lat_bnds", "time_bnds"]
+COMMON_DATA_VARS = ["lon_bnds", "lat_bnds", "time_bnds", "lon_bounds", "lat_bounds", "time_bounds"]
 
 
 def _get_variable_name(dataset):
