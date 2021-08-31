@@ -11,7 +11,7 @@ def get_land_mask(data):
 
 
 def get_antarctica_mask(data):
-    return ~get_reference_region_mask(data, "ANT*")
+    return get_reference_region_mask(data, "EAN") | get_reference_region_mask(data, "WAN")
 
 
 def get_nan_mask(data):
