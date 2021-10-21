@@ -1,4 +1,6 @@
 import numpy as np
+import scipy as sp
+from scipy import interpolate
 
 
 COMMON_DATA_VARS = ["lon_bnds", "lat_bnds", "time_bnds", "lon_bounds", "lat_bounds", "time_bounds"]
@@ -58,3 +60,15 @@ def _get_year_label(cfg, timeslice):
     start = cfg.init_year + timeslice.start
     stop = cfg.init_year + timeslice.stop
     return f"{start}-{stop}"
+
+
+def get_smooth_hist(hist, bins):
+    xs = (bins[1:] + bins[:-1])/2
+    return sp.interpolate.UnivariateSpline(xs, hist, s=0)
+
+
+def get_smooth_hist_normalized(hist, bins):
+    xs = (bins[1:] + bins[:-1])/2
+    tmp = sp.interpolate.UnivariateSpline(xs, hist, s=0)
+    norm = tmp.integral(bins[0], bins[-1])
+    return sp.interpolate.UnivariateSpline(xs, hist, w=np.full_like(xs, 1/norm), s=0)

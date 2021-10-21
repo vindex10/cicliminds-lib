@@ -16,6 +16,8 @@ from cicliminds_lib.plotting._helpers import _get_histogram_params
 from cicliminds_lib.plotting._helpers import _configure_axes
 from cicliminds_lib.plotting._helpers import _get_year_label
 from cicliminds_lib.plotting._helpers import _get_variable_name
+from cicliminds_lib.plotting._helpers import get_smooth_hist
+from cicliminds_lib.plotting._helpers import get_smooth_hist_normalized
 
 
 class MeansOfHistsRecipe:
@@ -31,14 +33,19 @@ class MeansOfHistsRecipe:
         bins, x, widths = _get_histogram_params(val, binsize=cfg.binsize, bincount=cfg.bincount)
         hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
                             density=cfg.normalize_histograms)
+        smoother = get_smooth_hist if not cfg.normalize_histograms else get_smooth_hist_normalized
         mean = get_mean(hist)
-        ax.bar(x, mean.values.ravel(), widths, label=_get_year_label(cfg, timeslice))
+        smooth_xs = np.linspace(bins[0], bins[-1], len(bins)*10)
+        smooth_hist = smoother(mean.values.ravel(), bins)
+        ax.fill_between(smooth_xs, smooth_hist(smooth_xs),
+                        label=_get_year_label(cfg, timeslice), color="gray", alpha=0.4)
         cmap = cm.get_cmap(cfg.colormap)
         for intensity, timeslice in timeslices:
             hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
                                 density=cfg.normalize_histograms)
             means = cdo_fldmean_from_data(hist).values[0, 0]
-            ax.stairs(means, bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
+            smooth_hist = smoother(means, bins)
+            ax.plot(smooth_xs, smooth_hist(smooth_xs), label=_get_year_label(cfg, timeslice), color=cmap(intensity))
         _configure_axes(ax, cfg)
 
     @staticmethod
@@ -62,11 +69,14 @@ class MeansOfHistsDiffRecipe:
                             density=cfg.normalize_histograms)
         ref_mean = get_mean(hist)
         cmap = cm.get_cmap(cfg.colormap)
+        smoother = get_smooth_hist if not cfg.normalize_histograms else get_smooth_hist_normalized
+        smooth_xs = np.linspace(bins[0], bins[-1], len(bins)*10)
         for intensity, timeslice in timeslices:
             hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
                                 density=cfg.normalize_histograms)
             mean = cdo_fldmean_from_data(hist) - ref_mean
-            ax.stairs(mean.values[0, 0], bins, label=_get_year_label(cfg, timeslice), color=cmap(intensity))
+            smooth_hist = smoother(mean.values[0, 0], bins)
+            ax.plot(smooth_xs, smooth_hist(smooth_xs), label=_get_year_label(cfg, timeslice), color=cmap(intensity))
         _configure_axes(ax, cfg)
         ax.set_yscale("linear")
 
