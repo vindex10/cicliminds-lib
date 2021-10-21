@@ -27,7 +27,7 @@ def data_to_data(func, newvar=None):
              tempfile.NamedTemporaryFile("r") as fin:
             data.to_netcdf(fin.name)
             func(fout.name, fin.name, *args)
-            res = xr.load_dataset(fout.name, engine="netcdf4")
+            res = xr.load_dataset(fout.name, engine="netcdf4", use_cftime=False, decode_times=False)
         if not isinstance(data, xr.DataArray):
             return res
         newvar_name = newvar if newvar is not None else data.name
