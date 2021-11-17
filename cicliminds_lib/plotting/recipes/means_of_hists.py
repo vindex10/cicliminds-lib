@@ -34,18 +34,24 @@ class MeansOfHistsRecipe:
         hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
                             density=cfg.normalize_histograms)
         smoother = get_smooth_hist if not cfg.normalize_histograms else get_smooth_hist_normalized
-        mean = get_mean(hist)
+        mean_hist = get_mean(hist)
+        mean = np.float64((mean_hist*x).sum()/mean_hist.sum())
+        std = np.float64(((x**2*mean_hist).sum()/mean_hist.sum() - mean**2))
+        label = _get_year_label(cfg, timeslice) + f" [{mean:.2f}, {std:.2f}]"
         smooth_xs = np.linspace(bins[0], bins[-1], len(bins)*10)
-        smooth_hist = smoother(mean.values.ravel(), bins)
+        smooth_hist = smoother(mean_hist.values.ravel(), bins)
         ax.fill_between(smooth_xs, smooth_hist(smooth_xs),
-                        label=_get_year_label(cfg, timeslice), color="gray", alpha=0.4)
+                        label=label, color="gray", alpha=0.4)
         cmap = cm.get_cmap(cfg.colormap)
         for intensity, timeslice in timeslices:
             hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
                                 density=cfg.normalize_histograms)
-            means = cdo_fldmean_from_data(hist).values[0, 0]
-            smooth_hist = smoother(means, bins)
-            ax.plot(smooth_xs, smooth_hist(smooth_xs), label=_get_year_label(cfg, timeslice), color=cmap(intensity))
+            mean_hists = cdo_fldmean_from_data(hist).values[0, 0]
+            mean = (mean_hists*x).sum()/mean_hists.sum()
+            std = (x**2*mean_hists).sum()/mean_hists.sum() - mean**2
+            label = _get_year_label(cfg, timeslice) + f" [{mean:.2f}, {std:.2f}]"
+            smooth_hist = smoother(mean_hists, bins)
+            ax.plot(smooth_xs, smooth_hist(smooth_xs), label=label, color=cmap(intensity))
         _configure_axes(ax, cfg)
 
     @staticmethod
