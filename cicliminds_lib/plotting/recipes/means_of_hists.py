@@ -31,7 +31,7 @@ class MeansOfHistsRecipe:
         timeslices = _generate_timeslices(val, cfg)
         _, timeslice = next(timeslices)
         bins, x, widths = _get_histogram_params(val, binsize=cfg.binsize, bincount=cfg.bincount)
-        hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
+        hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model", "scenario"],
                             density=cfg.normalize_histograms)
         smoother = get_smooth_hist if not cfg.normalize_histograms else get_smooth_hist_normalized
         mean_hist = get_mean(hist)
@@ -44,7 +44,7 @@ class MeansOfHistsRecipe:
                         label=label, color="gray", alpha=0.4)
         cmap = cm.get_cmap(cfg.colormap)
         for intensity, timeslice in timeslices:
-            hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
+            hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model", "scenario"],
                                 density=cfg.normalize_histograms)
             mean_hists = cdo_fldmean_from_data(hist).values[0, 0]
             mean = (mean_hists*x).sum()/mean_hists.sum()

@@ -4,8 +4,9 @@ from cicliminds_lib.config import CFG
 from cicliminds_lib.utils import run_fs_cmd
 from cicliminds_lib.utils import data_to_data
 
-
+FLOAT_MISSING_VALUE = -9.99999979021476795361e+33
 CDO_EXECUTABLE = CFG.cdo_executable
+NCWA_EXECUTABLE = "ncwa -4"
 
 
 def remove_grid(fout_path, fin_path):
@@ -22,6 +23,14 @@ def cdo_fldmean(fout_path, fin_path):
 
 
 cdo_fldmean_from_data = data_to_data(cdo_fldmean)
+
+
+def nco_fldmean(fout_path, fin_path, dims=None):
+    dims_str = "" if not dims else "-a" + ",".join(dims)
+    run_fs_cmd(fout_path, f"{NCWA_EXECUTABLE} -O {dims_str}", fin_path)
+
+
+nco_fldmean_from_data = data_to_data(nco_fldmean)
 
 
 def cdo_fldmin(fout_path, fin_path):
