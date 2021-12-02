@@ -1,39 +1,32 @@
-from cicliminds_lib.utils import filter_pdarray
-from cicliminds_lib.bindings import cdo_cat
+import numpy as np
+import pandas as pd
+
+DATASET_FIELDS = ["model", "scenario", "init_params", "frequency", "variable"]
 
 
-def get_list_of_files(datasets, config, with_scenario=None):
-    files = filter_pdarray(datasets, {
-            "model": config["model"],
-            "scenario": config["scenario"],
-            "init_params": config["init_params"],
-            "frequency": config["frequency"]
-        })
-    tmpfile = yield
-    for fileinfo in files.itertuples():
-        variable = fileinfo.variable
-        res = fileinfo.Index
-        if with_scenario is not None:
-            scenario_file = _get_scenario(datasets, fileinfo, with_scenario)
-            _add_scenario(tmpfile, scenario_file, fileinfo.Index)
-            res = tmpfile
-        tmpfile = yield res, variable
+def get_datasets_for_block(datasets_reg, query):
+    mask = get_shallow_filters_mask(datasets_reg, query)
+    mask = mask & apply_scenario_filter(datasets_reg, mask, [query["scenario"]])
+    return datasets_reg[mask].copy()
 
 
-def _get_scenario(datasets, fileinfo, scenario):
-    files = filter_pdarray(datasets, {
-        "model": fileinfo.model,
-        "scenario": scenario,
-        "variable": fileinfo.variable,
-        "init_params": fileinfo.init_params,
-        "frequency": fileinfo.frequency
-    })
-    if files.shape[0] > 1:
-        raise Exception("Duplicate ssp model")
-    if files.shape[0] == 0:
-        raise Exception("ssp model not found")
-    return files.index.values[0]
+def get_shallow_filters_mask(datasets_reg, query):
+    mask = pd.Series(np.full(datasets_reg.shape[0], True), index=datasets_reg.index)
+    for field in DATASET_FIELDS:
+        values = query[field]
+        if not values:
+            continue
+        mask = mask & datasets_reg[field].isin(values)
+    return mask
 
 
-def _add_scenario(output_file, scenario_file, input_file):
-    cdo_cat(output_file, [input_file, scenario_file])
+def apply_scenario_filter(datasets, mask, scenarios):
+    new_mask = mask.copy()
+    scenarios_set = set(scenarios)
+    columns_without_scenario = [i for i in datasets.columns if i not in ["scenario", "timespan"]]
+    for _, group in datasets[mask].groupby(columns_without_scenario):
+        group_scenarios = set(group["scenario"].values)
+        if not scenarios_set - group_scenarios:
+            continue
+        new_mask[group.index] = False
+    return new_mask
