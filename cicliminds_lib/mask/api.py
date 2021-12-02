@@ -1,9 +1,9 @@
 import pandas as pd
 import xarray as xr
 
-from cicliminds_lib.mask import get_land_mask
-from cicliminds_lib.mask import get_antarctica_mask
-from cicliminds_lib.mask import iter_reference_region_masks
+from cicliminds_lib.mask.mask import get_land_mask
+from cicliminds_lib.mask.mask import get_antarctica_mask
+from cicliminds_lib.mask.mask import iter_reference_region_masks
 
 
 def get_dataset_mask_by_query(dataset, plot_query):

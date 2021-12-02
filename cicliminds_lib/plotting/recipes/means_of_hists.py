@@ -71,14 +71,14 @@ class MeansOfHistsDiffRecipe:
         timeslices = _generate_timeslices(val, cfg)
         _, timeslice = next(timeslices)
         bins, _, _ = _get_histogram_params(val.isel(time=timeslice), binsize=cfg.binsize, bincount=cfg.bincount)
-        hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
+        hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model", "scenario"],
                             density=cfg.normalize_histograms)
         ref_mean = get_mean(hist)
         cmap = cm.get_cmap(cfg.colormap)
         smoother = get_smooth_hist if not cfg.normalize_histograms else get_smooth_hist_normalized
         smooth_xs = np.linspace(bins[0], bins[-1], len(bins)*10)
         for intensity, timeslice in timeslices:
-            hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model"],
+            hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model", "scenario"],
                                 density=cfg.normalize_histograms)
             mean = cdo_fldmean_from_data(hist) - ref_mean
             smooth_hist = smoother(mean.values[0, 0], bins)

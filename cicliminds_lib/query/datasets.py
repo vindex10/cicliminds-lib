@@ -6,7 +6,7 @@ DATASET_FIELDS = ["model", "scenario", "init_params", "frequency", "variable"]
 
 def get_datasets_for_block(datasets_reg, query):
     mask = get_shallow_filters_mask(datasets_reg, query)
-    mask = mask & apply_scenario_filter(datasets_reg, mask, [query["scenario"]])
+    mask = mask & apply_scenario_filter(datasets_reg, mask, query["scenario"])
     return datasets_reg[mask].copy()
 
 
