@@ -20,7 +20,8 @@ MAP_PROJECTION = ccrs.Mollweide()
 
 class MeanValRecipe:
     @classmethod
-    def plot(cls, ax, dataset, query):
+    def plot(cls, ax, query, inputs):
+        dataset = inputs["datasets"]
         variable = _get_variable_name(dataset)
         val = dataset[variable]
         default_cfg = cls.get_default_config(variable)
@@ -57,7 +58,8 @@ class MeanValRecipe:
 
 class MeanValDiffRecipe:
     @classmethod
-    def plot(cls, ax, dataset, query):
+    def plot(cls, ax, query, inputs):
+        dataset = inputs["datasets"]
         variable = _get_variable_name(dataset)
         val = dataset[variable]
         default_cfg = cls.get_default_config(variable)

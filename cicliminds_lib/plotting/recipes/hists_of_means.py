@@ -18,7 +18,8 @@ from cicliminds_lib.plotting._helpers import _get_variable_name
 
 class HistsOfMeansRecipe:
     @classmethod
-    def plot(cls, ax, dataset, query):
+    def plot(cls, ax, query, inputs):
+        dataset = inputs["datasets"]
         variable = _get_variable_name(dataset)
         val = dataset[variable]
         default_cfg = cls.get_default_config(variable)
@@ -44,7 +45,8 @@ class HistsOfMeansRecipe:
 
 class HistsOfMeansDiffRecipe:
     @classmethod
-    def plot(cls, ax, dataset, query):
+    def plot(cls, ax, query, inputs):
+        dataset = inputs["datasets"]
         variable = _get_variable_name(dataset)
         val = dataset[variable]
         default_cfg = cls.get_default_config(variable)
@@ -73,22 +75,22 @@ class HistsOfMeansDiffRecipe:
 
 _cfg_format = namedtuple("HISTS_OF_MEANS_VIZ_DEFAULTS_ROW", ("unit", "unit_factor", "binsize", "yscale"))
 HISTS_OF_MEANS_VIZ_DEFAULTS = {
-    "altcddETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 1, "linear"),
-    "altcsdiETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 1, "linear"),
-    "altcwdETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 0.2, "linear"),
-    "altwsdiETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 0.5, "linear"),
-    "cddETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 2, "linear"),
-    "csdiETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 1, "linear"),
-    "cwdETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 0.2, "linear"),
-    "fdETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 0.5, "linear"),
-    "idETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 0.5, "linear"),
-    "gslETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 1, "linear"),
-    "r10mmETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 0.1, "linear"),
-    "r1mmETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 0.5, "linear"),
+    "altcddETCCDI": _cfg_format("days", 1, 1, "linear"),
+    "altcsdiETCCDI": _cfg_format("days", 1, 1, "linear"),
+    "altcwdETCCDI": _cfg_format("days", 1, 0.2, "linear"),
+    "altwsdiETCCDI": _cfg_format("days", 1, 0.5, "linear"),
+    "cddETCCDI": _cfg_format("days", 1, 2, "linear"),
+    "csdiETCCDI": _cfg_format("days", 1, 1, "linear"),
+    "cwdETCCDI": _cfg_format("days", 1, 0.2, "linear"),
+    "fdETCCDI": _cfg_format("days", 1, 0.5, "linear"),
+    "idETCCDI": _cfg_format("days", 1, 0.5, "linear"),
+    "gslETCCDI": _cfg_format("days", 1, 1, "linear"),
+    "r10mmETCCDI": _cfg_format("days", 1, 0.1, "linear"),
+    "r1mmETCCDI": _cfg_format("days", 1, 0.5, "linear"),
     "r20mmETCCDI": _cfg_format("hours", np.timedelta64(1, 'h'), 2, "linear"),
-    "suETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 0.5, "linear"),
-    "trETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 1, "linear"),
-    "wsdiETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 0.5, "linear"),
+    "suETCCDI": _cfg_format("days", 1, 0.5, "linear"),
+    "trETCCDI": _cfg_format("days", 1, 1, "linear"),
+    "wsdiETCCDI": _cfg_format("days", 1, 0.5, "linear"),
     "dtrETCCDI": _cfg_format("degrees_C/10", 0.1, 0.2, "linear"),
     "tnnETCCDI": _cfg_format("degrees_C", 1, 0.2, "linear"),
     "tnxETCCDI": _cfg_format("degrees_C", 1, 0.1, "linear"),

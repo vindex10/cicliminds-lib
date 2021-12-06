@@ -24,3 +24,15 @@ def parse_dataset_name(f):
              "init_params": init_params,
              "timespan": f'{timespan_from[:4]}-{timespan_to[:4]}'}
     return entry
+
+
+def get_model_weights(path):
+    res = []
+    for f in os.listdir(path):
+        if not f.endswith(".tsv"):
+            continue
+        entry = {}
+        entry["path"] = os.path.join(path, f)
+        entry["name"] = f[:-4]
+        res.append(entry)
+    return pd.DataFrame.from_records(res).set_index("path")

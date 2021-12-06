@@ -3,12 +3,12 @@ from itertools import groupby
 import pandas as pd
 import xarray as xr
 
-from cicliminds_lib.unify.normalize import safe_drop_bounds
-from cicliminds_lib.unify.normalize import get_coarsest_grid
-from cicliminds_lib.unify.normalize import normalize_calendar
-from cicliminds_lib.unify.normalize import infer_common_time_axis
-from cicliminds_lib.unify.normalize import align_time_axes
-from cicliminds_lib.unify.normalize import regrid_dataset_group
+from cicliminds_lib.unify.datasets.normalize import safe_drop_bounds
+from cicliminds_lib.unify.datasets.normalize import get_coarsest_grid
+from cicliminds_lib.unify.datasets.normalize import normalize_calendar
+from cicliminds_lib.unify.datasets.normalize import infer_common_time_axis
+from cicliminds_lib.unify.datasets.normalize import align_time_axes
+from cicliminds_lib.unify.datasets.normalize import regrid_dataset_group
 
 
 def get_merged_dataset(datasets_reg, scenarios):

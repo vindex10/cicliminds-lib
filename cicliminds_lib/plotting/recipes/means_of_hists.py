@@ -22,7 +22,8 @@ from cicliminds_lib.plotting._helpers import get_smooth_hist_normalized
 
 class MeansOfHistsRecipe:
     @classmethod
-    def plot(cls, ax, dataset, query):
+    def plot(cls, ax, query, inputs):
+        dataset = inputs["datasets"]
         variable = _get_variable_name(dataset)
         val = dataset[variable]
         default_cfg = cls.get_default_config(variable)
@@ -62,7 +63,8 @@ class MeansOfHistsRecipe:
 
 class MeansOfHistsDiffRecipe:
     @classmethod
-    def plot(cls, ax, dataset, query):
+    def plot(cls, ax, query, inputs):
+        dataset = inputs["datasets"]
         variable = _get_variable_name(dataset)
         val = dataset[variable]
         default_cfg = cls.get_default_config(variable)
@@ -96,22 +98,22 @@ class MeansOfHistsDiffRecipe:
 
 _cfg_format = namedtuple("MEANS_OF_HISTS_VIZ_DEFAULTS_ROW", ("unit", "unit_factor", "binsize", "yscale"))
 MEANS_OF_HISTS_VIZ_DEFAULTS = {
-    "altcddETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "altcsdiETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "altcwdETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "altwsdiETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "cddETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 90, "log"),
-    "csdiETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "cwdETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "fdETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "idETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "gslETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "r10mmETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "r1mmETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "r20mmETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "suETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "trETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
-    "wsdiETCCDI": _cfg_format("days", np.timedelta64(1, 'D'), 7, "log"),
+    "altcddETCCDI": _cfg_format("days", 1, 7, "log"),
+    "altcsdiETCCDI": _cfg_format("days", 1, 7, "log"),
+    "altcwdETCCDI": _cfg_format("days", 1, 7, "log"),
+    "altwsdiETCCDI": _cfg_format("days", 1, 7, "log"),
+    "cddETCCDI": _cfg_format("days", 1, 90, "log"),
+    "csdiETCCDI": _cfg_format("days", 1, 7, "log"),
+    "cwdETCCDI": _cfg_format("days", 1, 7, "log"),
+    "fdETCCDI": _cfg_format("days", 1, 7, "log"),
+    "idETCCDI": _cfg_format("days", 1, 7, "log"),
+    "gslETCCDI": _cfg_format("days", 1, 7, "log"),
+    "r10mmETCCDI": _cfg_format("days", 1, 7, "log"),
+    "r1mmETCCDI": _cfg_format("days", 1, 7, "log"),
+    "r20mmETCCDI": _cfg_format("days", 1, 7, "log"),
+    "suETCCDI": _cfg_format("days", 1, 7, "log"),
+    "trETCCDI": _cfg_format("days", 1, 7, "log"),
+    "wsdiETCCDI": _cfg_format("days", 1, 7, "log"),
     "dtrETCCDI": _cfg_format("degrees_C", 1, 1, "linear"),
     "tnnETCCDI": _cfg_format("degrees_C", 1, 1, "linear"),
     "tnxETCCDI": _cfg_format("degrees_C", 1, 1, "linear"),
