@@ -8,7 +8,9 @@ import cartopy.crs as ccrs
 from cartopy.mpl.geoaxes import GeoAxes
 
 from cicliminds_lib.utils import patch_config
-
+from cicliminds_lib.math import xr_weighted_median
+from cicliminds_lib.unify.model_weights.normalize import align_model_weights_with_dataarray
+from cicliminds_lib.unify.model_weights.normalize import density_model_weights
 from cicliminds_lib.plotting.recipes.means_of_hists import MeansOfHistsRecipe
 from cicliminds_lib.plotting.recipes.means_of_hists import MeansOfHistsDiffRecipe
 from cicliminds_lib.plotting._helpers import _standardize_data
@@ -28,7 +30,12 @@ class MeanValRecipe:
         cfg = patch_config(default_cfg, query)
         val = _standardize_data(val, cfg)
         val_mean = val.isel(time=slice(-cfg.sliding_window_size, None)).mean(dim=["time"])
-        model_median = val_mean.median(dim=["model", "scenario"])
+        scenario_median = val_mean.median(dim=["scenario"])
+        model_weights = None
+        if inputs["model_weights"] is not None:
+            model_weights = align_model_weights_with_dataarray(inputs["model_weights"], scenario_median)
+            model_weights = density_model_weights(model_weights)
+        model_median = xr_weighted_median(scenario_median, model_weights, "model")
         cmap = cm.get_cmap(cfg.colormap)
         ccrs_ax = inset_axes(ax, width="100%", height="100%",
                              axes_class=GeoAxes,
@@ -68,7 +75,12 @@ class MeanValDiffRecipe:
         val_mean = val.isel(time=slice(-cfg.sliding_window_size, None)).mean(dim=["time"])
         ref_mean = val.isel(time=slice(None, cfg.reference_window_size)).mean(dim=["time"])
         mean_diff = val_mean - ref_mean
-        model_median = mean_diff.median(dim=["model", "scenario"])
+        scenario_median = mean_diff.median(dim=["scenario"])
+        model_weights = None
+        if inputs["model_weights"] is not None:
+            model_weights = align_model_weights_with_dataarray(inputs["model_weights"], scenario_median)
+            model_weights = density_model_weights(model_weights)
+        model_median = xr_weighted_median(scenario_median, model_weights, "model")
         cmap = cm.get_cmap(cfg.colormap)
         ccrs_ax = inset_axes(ax, width="100%", height="100%",
                              axes_class=GeoAxes,

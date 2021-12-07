@@ -3,6 +3,10 @@ from matplotlib import cm
 from cicliminds_lib.utils import patch_config
 from cicliminds_lib.bindings import FLOAT_MISSING_VALUE
 from cicliminds_lib.bindings import nco_fldmean_from_data
+from cicliminds_lib.math import xr_weighted_median
+from cicliminds_lib.math import xr_weighted_quantile
+from cicliminds_lib.unify.model_weights.normalize import align_model_weights_with_dataarray
+from cicliminds_lib.unify.model_weights.normalize import density_model_weights
 from cicliminds_lib.plotting.recipes.means_of_hists import MeansOfHistsRecipe
 from cicliminds_lib.plotting.recipes.means_of_hists import MeansOfHistsDiffRecipe
 from cicliminds_lib.plotting._helpers import _standardize_data
@@ -22,9 +26,13 @@ class TimeSeriesRecipe:
         val.attrs["_FillValue"] = FLOAT_MISSING_VALUE
         fldmeaned = nco_fldmean_from_data(val, ["lon", "lat"])
         smoothed = fldmeaned.rolling(dim={"time": 20}, center=True).mean()
-        model_median = smoothed.median(dim=["model"])
-        model_lower = smoothed.quantile(0.25, dim=["model"])
-        model_upper = smoothed.quantile(0.75, dim=["model"])
+        model_weights = None
+        if inputs["model_weights"] is not None:
+            model_weights = align_model_weights_with_dataarray(inputs["model_weights"], smoothed)
+            model_weights = density_model_weights(model_weights)
+        model_median = xr_weighted_median(smoothed, model_weights, "model")
+        model_lower = xr_weighted_quantile(0.25, smoothed, model_weights, "model")
+        model_upper = xr_weighted_quantile(0.75, smoothed, model_weights, "model")
         cmap = cm.get_cmap(cfg.colormap)
         for i, scenario in enumerate(model_median["scenario"].data):
             intensity = (i+1)/model_median["scenario"].shape[0]
@@ -61,9 +69,13 @@ class TimeSeriesDiffRecipe:
         val.attrs["_FillValue"] = FLOAT_MISSING_VALUE
         fldmeaned = nco_fldmean_from_data(val, ["lon", "lat"])
         smoothed = fldmeaned.rolling(dim={"time": 20}, center=True).mean()
-        model_median = smoothed.median(dim=["model"])
-        model_lower = smoothed.quantile(0.25, dim=["model"])
-        model_upper = smoothed.quantile(0.75, dim=["model"])
+        model_weights = None
+        if inputs["model_weights"] is not None:
+            model_weights = align_model_weights_with_dataarray(inputs["model_weights"], smoothed)
+            model_weights = density_model_weights(model_weights)
+        model_median = xr_weighted_median(smoothed, model_weights, "model")
+        model_lower = xr_weighted_quantile(0.25, smoothed, model_weights, "model")
+        model_upper = xr_weighted_quantile(0.75, smoothed, model_weights, "model")
         cmap = cm.get_cmap(cfg.colormap)
         for i, scenario in enumerate(model_median["scenario"].data):
             intensity = (i+1)/model_median["scenario"].shape[0]
