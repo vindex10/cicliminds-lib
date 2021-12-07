@@ -12,7 +12,6 @@ from cicliminds_lib.unify.model_weights.normalize import align_model_weights_wit
 from cicliminds_lib.unify.model_weights.normalize import density_model_weights
 
 from cicliminds_lib.plotting.config import RecipeConfig
-from cicliminds_lib.plotting.elements import get_mean
 from cicliminds_lib.plotting._helpers import _standardize_data
 from cicliminds_lib.plotting._helpers import _generate_timeslices
 from cicliminds_lib.plotting._helpers import _get_histogram_params
@@ -42,7 +41,7 @@ class MeansOfHistsRecipe:
         hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model", "scenario"],
                             density=cfg.normalize_histograms, weights=model_weights)
         smoother = get_smooth_hist if not cfg.normalize_histograms else get_smooth_hist_normalized
-        mean_hist = get_mean(hist)
+        mean_hist = cdo_fldmean_from_data(hist)
         mean = np.float64((mean_hist*x).sum()/mean_hist.sum())
         std = np.float64(((x**2*mean_hist).sum()/mean_hist.sum() - mean**2))
         label = _get_year_label(cfg, timeslice) + f" [{mean:.2f}, {std:.2f}]"
@@ -90,7 +89,7 @@ class MeansOfHistsDiffRecipe:
             model_weights = density_model_weights(model_weights)
         hist = xh.histogram(val.isel(time=timeslice), bins=[bins], dim=["time", "model", "scenario"],
                             density=cfg.normalize_histograms, weights=model_weights)
-        ref_mean = get_mean(hist)
+        ref_mean = cdo_fldmean_from_data(hist)
         cmap = cm.get_cmap(cfg.colormap)
         smoother = get_smooth_hist if not cfg.normalize_histograms else get_smooth_hist_normalized
         smooth_xs = np.linspace(bins[0], bins[-1], len(bins)*10)
