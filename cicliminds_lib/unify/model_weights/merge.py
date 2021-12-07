@@ -20,7 +20,7 @@ def get_weight_dfs(model_weights_reg, model_weight_names):
     for name in model_weight_names:
         reg_row = model_weights_reg[model_weights_reg["name"] == name]
         filepath = reg_row.index.values[0]
-        df = pd.read_csv(filepath, sep="\t", header=False, comment="#")
+        df = pd.read_csv(filepath, sep="\t", header=None, comment="#")
         df = df.iloc[:, 0:len(MODEL_WEIGHTS_COLUMNS)]
         df.columns = MODEL_WEIGHTS_COLUMNS
         res[name] = df
