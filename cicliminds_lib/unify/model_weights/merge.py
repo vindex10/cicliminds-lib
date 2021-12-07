@@ -2,7 +2,8 @@ from functools import reduce
 import pandas as pd
 
 
-MODEL_WEIGHTS_ID_COLUMNS = ["model", "init_param", "scenario"]
+MODEL_WEIGHTS_COLUMNS = ["model", "init_param", "scenario", "weight"]
+MODEL_WEIGHTS_ID_COLUMNS = MODEL_WEIGHTS_COLUMNS[:3]
 
 
 def get_merged_model_weights(model_weights_reg, model_weight_names):
@@ -19,7 +20,10 @@ def get_weight_dfs(model_weights_reg, model_weight_names):
     for name in model_weight_names:
         reg_row = model_weights_reg[model_weights_reg["name"] == name]
         filepath = reg_row.index.values[0]
-        res[name] = pd.read_csv(filepath, sep="\t", header=0)
+        df = pd.read_csv(filepath, sep="\t", header=False, comment="#")
+        df = df.iloc[:, 0:len(MODEL_WEIGHTS_COLUMNS)]
+        df.columns = MODEL_WEIGHTS_COLUMNS
+        res[name] = df
     return res
 
 
