@@ -93,7 +93,7 @@ def merge_scenarios(datasets):
         if len(scenario_group) <= 1:
             for params, dataset in zip(param_group, scenario_group):
                 yield params[:-1], dataset.expand_dims({"scenario": scenarios})
-            return
+            continue
         scenario_names_axis = pd.Series(scenarios, name="scenario")
         merged = xr.concat(scenario_group, dim=scenario_names_axis, join="override")
         yield (param_group[0][:-1], merged)
