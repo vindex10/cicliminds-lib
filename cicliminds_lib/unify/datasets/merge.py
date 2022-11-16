@@ -49,6 +49,9 @@ def merge_time_axes(datasets):
         if not historical:
             yield from rest
             return
+        if not rest:
+            yield historical
+            return
         hist_params, hist_data = historical
         last_hist_date = hist_data.time.data[-1]
         for params, dataset in rest:
